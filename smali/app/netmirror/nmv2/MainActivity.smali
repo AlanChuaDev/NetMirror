@@ -26,7 +26,7 @@
 
     invoke-static {}, Lcom/reactnativecommunity/webview/UIEnhancer;->initCookies()V
 
-    invoke-static {p0}, Lcom/reactnativecommunity/webview/UIEnhancer;->applyInitialRefreshRate(Landroid/app/Activity;)V
+    # Let Android manage the display refresh rate; avoid forcing a mode during orientation/window transitions.
 
     .line 2
     .line 3
@@ -68,7 +68,7 @@
 
     .line 22
     .line 23
-    invoke-virtual {p1, v1, v1}, Landroid/view/Window;->setFlags(II)V
+    invoke-virtual {p1, v1}, Landroid/view/Window;->clearFlags(I)V
 
     .line 24
     .line 25

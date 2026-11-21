@@ -366,68 +366,34 @@
 .end method
 
 .method public static initCookies()V
-    .locals 5
+    .locals 2
 
     .line 29
-    const-string v0, "https://net52.cc"
+    sget-boolean v0, Lcom/reactnativecommunity/webview/UIEnhancer;->sCookieInitialized:Z
 
-    sget-boolean v1, Lcom/reactnativecommunity/webview/UIEnhancer;->sCookieInitialized:Z
-
-    if-eqz v1, :cond_0
+    if-eqz v0, :cond_0
 
     return-void
 
-    .line 31
     :cond_0
     :try_start_0
     invoke-static {}, Landroid/webkit/CookieManager;->getInstance()Landroid/webkit/CookieManager;
 
-    move-result-object v1
+    move-result-object v0
 
-    .line 32
-    const/4 v2, 0x1
+    const/4 v1, 0x1
 
-    invoke-virtual {v1, v2}, Landroid/webkit/CookieManager;->setAcceptCookie(Z)V
+    invoke-virtual {v0, v1}, Landroid/webkit/CookieManager;->setAcceptCookie(Z)V
 
-    .line 33
-    invoke-virtual {v1, v0}, Landroid/webkit/CookieManager;->getCookie(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    .line 34
-    if-eqz v3, :cond_1
-
-    const-string v4, "t_hash_t="
-
-    invoke-virtual {v3, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v3
-
-    if-nez v3, :cond_2
-
-    .line 35
-    :cond_1
-    const-string v3, "t_hash_t=1e004325b9ede3cb0e3a563eff057331%3A%3A49b6d7f28fcaf9aaf18ec550a3f8a4bd%3A%3A1794336163%3A%3Adb%3A%3Am; path=/; domain=net52.cc; expires=Wed, 11-Nov-2026 06:42:43 GMT"
-
-    invoke-virtual {v1, v0, v3}, Landroid/webkit/CookieManager;->setCookie(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 36
-    invoke-virtual {v1}, Landroid/webkit/CookieManager;->flush()V
-
-    .line 38
-    :cond_2
-    sput-boolean v2, Lcom/reactnativecommunity/webview/UIEnhancer;->sCookieInitialized:Z
+    sput-boolean v1, Lcom/reactnativecommunity/webview/UIEnhancer;->sCookieInitialized:Z
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 41
     goto :goto_0
 
-    .line 39
     :catchall_0
     move-exception v0
 
-    .line 42
     :goto_0
     return-void
 .end method

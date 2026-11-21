@@ -470,8 +470,19 @@
 
     if (!isUnverified) return;
 
-    if (!document.getElementById('nm-seamless-loader')) {
-      const loader = document.createElement('div');
+    // Only start the server verification flow when the page supplies a verification hash.
+    // If there is no hash, leave the original support/ad prompt visible for the user.
+    const addhash = document.body.getAttribute('data-addhash');
+    if (!addhash) return;
+
+    // init() runs on DOMContentLoaded and load. Keep both events from starting
+    // duplicate verification requests and duplicate polling timers.
+    if (window.__NM_AD_VERIFY_RUNNING__) return;
+    window.__NM_AD_VERIFY_RUNNING__ = true;
+
+    let loader = document.getElementById('nm-seamless-loader');
+    if (!loader) {
+      loader = document.createElement('div');
       loader.id = 'nm-seamless-loader';
       loader.innerHTML = `
         <svg class="nm-logo-glow" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -483,13 +494,11 @@
       document.body.appendChild(loader);
     }
 
-    const addhash = document.body.getAttribute('data-addhash');
-    if (!addhash) return;
-
     const userverUrl = 'https://userver.net52.cc/?ffr455=' + encodeURIComponent(addhash) + '&a=y&t=' + Math.random();
     fetch(userverUrl, { mode: 'no-cors' }).catch(function () {});
 
     const ifr = document.createElement('iframe');
+    ifr.id = 'nm-ad-verify-frame';
     ifr.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0.01;bottom:-999px;pointer-events:none;';
     ifr.src = userverUrl;
     document.body.appendChild(ifr);
@@ -509,14 +518,22 @@
       .then(function (res) {
         if (res && res.statusup === 'All Done') {
           clearInterval(poller);
+          window.__NM_AD_VERIFY_RUNNING__ = false;
+          if (ifr.parentNode) ifr.parentNode.removeChild(ifr);
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
           location.reload();
         }
       })
       .catch(function () {});
 
+      // Stop retrying after the existing timeout, but do not reload the app.
+      // This leaves the server-controlled ad/support prompt available instead
+      // of creating an endless reload loop when verification cannot complete.
       if (attempts >= 25) {
         clearInterval(poller);
-        location.reload();
+        window.__NM_AD_VERIFY_RUNNING__ = false;
+        if (ifr.parentNode) ifr.parentNode.removeChild(ifr);
+        if (loader.parentNode) loader.parentNode.removeChild(loader);
       }
     }, 2000);
   }
